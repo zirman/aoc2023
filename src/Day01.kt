@@ -28,9 +28,7 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         fun String.checkMatch(i: Int): Int? {
-            return numbers.keys
-                .find { regex -> regex.matchesAt(this, i) }
-                ?.let { numbers[it] }
+            return numbers.firstNotNullOfOrNull { (regex, n) -> if (regex.matchesAt(this, i)) n else null }
         }
 
         return input.sumOf { line ->
