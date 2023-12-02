@@ -1,9 +1,6 @@
 fun main() {
-    fun part1(input: List<String>): Int {
-        return input.sumOf { line ->
-            "${line.find { it.isDigit() }}${line.findLast { it.isDigit() }}".toInt()
-        }
-    }
+    fun part1(input: List<String>): Int =
+         input.sumOf { line -> "${line.first { it.isDigit() }}${line.last { it.isDigit() }}".toInt() }
 
     val numbers = mapOf(
         "1" to 1,
@@ -27,9 +24,8 @@ fun main() {
     ).mapKeys { (k) -> k.toRegex() }
 
     fun part2(input: List<String>): Int {
-        fun String.checkMatch(i: Int): Int? {
-            return numbers.firstNotNullOfOrNull { (regex, n) -> if (regex.matchesAt(this, i)) n else null }
-        }
+        fun String.checkMatch(i: Int): Int? =
+            numbers.firstNotNullOfOrNull { (regex, n) -> if (regex.matchesAt(this, i)) n else null }
 
         return input.sumOf { line ->
             "${
