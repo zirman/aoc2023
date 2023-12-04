@@ -22,11 +22,9 @@ fun main() {
             numbers.count { winningNumbers.contains(it) }
         }
 
-        fun winningScratchCardCount(i: Int): Int {
-            val memo = mutableMapOf<Int, Int>()
-            fun treeRecur(i: Int): Int = memo.getOrPut(i) { 1 + (i + 1..i + cardPoints[i]).sumOf { treeRecur(it) } }
-            return treeRecur(i)
-        }
+        val memo = mutableMapOf<Int, Int>()
+        fun winningScratchCardCount(i: Int): Int =
+            memo.getOrPut(i) { 1 + (i + 1..i + cardPoints[i]).sumOf { winningScratchCardCount(it) } }
 
         return cardPoints.indices.sumOf { winningScratchCardCount(it) }
     }
