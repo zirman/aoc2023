@@ -3,8 +3,8 @@ fun main() {
         val wsRegex = """\s+""".toRegex()
 
         return input.sumOf { line ->
-            val (_, combinedNumbers) = line.split(":")
-            val (winningNumbersStr, numbersStr) = combinedNumbers.split("|")
+            val (_, combinedNumbers) = line.split(':')
+            val (winningNumbersStr, numbersStr) = combinedNumbers.split('|')
             val winningNumbers = winningNumbersStr.trim().split(wsRegex).toSet()
             val numbers = numbersStr.trim().split(wsRegex)
             1.shl(numbers.count { winningNumbers.contains(it) } - 1)
@@ -12,13 +12,10 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val wsRegex = """\s+""".toRegex()
-
         val cardPoints = input.map { line ->
-            val (_, combinedNumbers) = line.split(":")
-            val (winningNumbersStr, numbersStr) = combinedNumbers.split("|")
-            val winningNumbers = winningNumbersStr.trim().split(wsRegex).toSet()
-            val numbers = numbersStr.trim().split(wsRegex)
+            val (_, winningNumbersStr, numbersStr) = line.split(':', '|')
+            val winningNumbers = winningNumbersStr.trim().split("""\s+""".toRegex()).toSet()
+            val numbers = numbersStr.trim().split("""\s+""".toRegex())
             numbers.count { winningNumbers.contains(it) }
         }
 
