@@ -17,8 +17,8 @@ fun main() {
         val cardPoints = input.map { line ->
             val (_, combinedNumbers) = line.split(":")
             val (winningNumbersStr, numbersStr) = combinedNumbers.split("|")
-            val winningNumbers = winningNumbersStr.trim().split(wsRegex).map { it.toInt() }.toSet()
-            val numbers = numbersStr.trim().split(wsRegex).map { it.toInt() }
+            val winningNumbers = winningNumbersStr.trim().split(wsRegex).toSet()
+            val numbers = numbersStr.trim().split(wsRegex)
             numbers.count { winningNumbers.contains(it) }
         }
 
