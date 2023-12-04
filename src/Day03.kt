@@ -111,6 +111,7 @@ fun main() {
                                         x = adjacent
                                             .subList(0, x + 2)
                                             .dropLastWhile { it.isDigit().not() }
+                                            // if not found -1 is returned which still works out to the correct index
                                             .indexOfLast { it.isDigit().not() } + 1,
                                         y = y
                                     )
@@ -132,10 +133,8 @@ fun main() {
             .run { return this }
     }
 
-    // test if implementation meets criteria from the description, like:
     val testInput1 = readInput("Day03_1_test")
     check(part1(testInput1) == 4361)
-
     check(part2(testInput1) == 467835)
 
     val input = readInput("Day03")
