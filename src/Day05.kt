@@ -1,6 +1,10 @@
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlin.math.min
+import kotlin.system.measureTimeMillis
 
-fun main() {
+suspend fun main() {
     fun part1(input: String): Long {
         val headingRegex = """(\w+)-to-(\w+) map:""".toRegex()
         val lines = input.split("\n\n")
@@ -46,7 +50,7 @@ fun main() {
             .min()
     }
 
-    fun part2(input: String): Long {
+    suspend fun part2(input: String): Long {
         val headingRegex = """(\w+)-to-(\w+) map:""".toRegex()
         val lines = input.split("\n\n")
         val seeds = lines[0].split("""(:|\s)+""".toRegex()).drop(1)
@@ -143,15 +147,21 @@ fun main() {
             }
         }
 
-        return seeds
-            .chunked(2)
-            .minOf { (startSource, length) ->
-                findMinFor(
-                    source = "seed",
-                    index = 0,
-                    sourceRange = startSource.toLong()..<startSource.toLong() + length.toLong(),
-                )
-            }
+        return coroutineScope {
+            seeds
+                .chunked(2)
+                .map { (startSource, length) ->
+                    async {
+                        findMinFor(
+                            source = "seed",
+                            index = 0,
+                            sourceRange = startSource.toLong()..<startSource.toLong() + length.toLong(),
+                        )
+                    }
+                }
+                .awaitAll()
+                .min()
+        }
     }
 
     val testInput1 = readFile("Day05_1_test")
@@ -159,6 +169,10 @@ fun main() {
     check(part2(testInput1) == 46L)
 
     val input = readFile("Day05")
-    part1(input).println()
-    part2(input).println()
+    measureTimeMillis {
+        part1(input).println()
+    }.also { println(it) }
+    measureTimeMillis {
+        part2(input).println()
+    }.also { println(it) }
 }
