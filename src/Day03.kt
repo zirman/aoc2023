@@ -133,11 +133,11 @@ fun main() {
             .run { return this }
     }
 
-    val testInput1 = readInput("Day03_1_test")
+    val testInput1 = readLines("Day03_1_test")
     check(part1(testInput1) == 4361)
     check(part2(testInput1) == 467835)
 
-    val input = readInput("Day03")
+    val input = readLines("Day03")
     part1(input).println()
     part2(input).println()
 }

@@ -8,13 +8,13 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput1 = readInput("Day12_1_test")
+    val testInput1 = readLines("Day12_1_test")
     check(part1(testInput1) == TODO())
 
 //    val testInput2 = readInput("Day12_2_test")
 //    check(part2(testInput2) == 1)
 
-    val input = readInput("Day12")
+    val input = readLines("Day12")
     part1(input).println()
 //    part2(input).println()
 }

@@ -1,22 +1,17 @@
 fun main() {
     fun part1(input: List<String>): Int {
-        val wsRegex = """\s+""".toRegex()
-
         return input.sumOf { line ->
-            val (_, combinedNumbers) = line.split(':')
-            val (winningNumbersStr, numbersStr) = combinedNumbers.split('|')
-            val winningNumbers = winningNumbersStr.trim().split(wsRegex).toSet()
-            val numbers = numbersStr.trim().split(wsRegex)
-            1.shl(numbers.count { winningNumbers.contains(it) } - 1)
+            val (_, winningNumbersStr, myNumbersStr) = line.split(':', '|')
+            val winningNumbers = winningNumbersStr.trim().split("""\s+""".toRegex()).toSet()
+            1.shl(myNumbersStr.trim().split("""\s+""".toRegex()).count { winningNumbers.contains(it) } - 1)
         }
     }
 
     fun part2(input: List<String>): Int {
         val cardPoints = input.map { line ->
-            val (_, winningNumbersStr, numbersStr) = line.split(':', '|')
+            val (_, winningNumbersStr, myNumbersStr) = line.split(':', '|')
             val winningNumbers = winningNumbersStr.trim().split("""\s+""".toRegex()).toSet()
-            val numbers = numbersStr.trim().split("""\s+""".toRegex())
-            numbers.count { winningNumbers.contains(it) }
+            myNumbersStr.trim().split("""\s+""".toRegex()).count { winningNumbers.contains(it) }
         }
 
         val memo = mutableMapOf<Int, Int>()
@@ -26,11 +21,11 @@ fun main() {
         return cardPoints.indices.sumOf { winningScratchCardCount(it) }
     }
 
-    val testInput1 = readInput("Day04_1_test")
+    val testInput1 = readLines("Day04_1_test")
     check(part1(testInput1) == 13)
     check(part2(testInput1) == 30)
 
-    val input = readInput("Day04")
+    val input = readLines("Day04")
     part1(input).println()
     part2(input).println()
 }

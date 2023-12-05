@@ -36,13 +36,13 @@ fun main() {
         }
     }
 
-    val testInput1 = readInput("Day01_1_test")
+    val testInput1 = readLines("Day01_1_test")
     check(part1(testInput1) == 142)
 
-    val testInput2 = readInput("Day01_2_test")
+    val testInput2 = readLines("Day01_2_test")
     check(part2(testInput2) == 281)
 
-    val input = readInput("Day01")
+    val input = readLines("Day01")
     part1(input).println()
     part2(input).println()
 }

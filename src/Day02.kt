@@ -45,11 +45,11 @@ fun main() {
             .run { return this }
     }
 
-    val testInput1 = readInput("Day02_1_test")
+    val testInput1 = readLines("Day02_1_test")
     check(part1(testInput1) == 8)
     check(part2(testInput1) == 2286)
 
-    val input = readInput("Day02")
+    val input = readLines("Day02")
     part1(input).println()
     part2(input).println()
 }
