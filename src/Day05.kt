@@ -1,7 +1,8 @@
+import kotlin.math.min
+
 fun main() {
     fun part1(input: String): Long {
         val headingRegex = """(\w+)-to-(\w+) map:""".toRegex()
-
         val lines = input.split("\n\n")
         val seeds = lines[0].split("""(:|\s)+""".toRegex()).drop(1)
 
@@ -47,7 +48,6 @@ fun main() {
 
     fun part2(input: String): Long {
         val headingRegex = """(\w+)-to-(\w+) map:""".toRegex()
-
         val lines = input.split("\n\n")
         val seeds = lines[0].split("""(:|\s)+""".toRegex()).drop(1)
 
@@ -74,29 +74,84 @@ fun main() {
             }
         }
 
-        val memo = mutableMapOf<Pair<String, Long>, Long>()
-        fun findMappingFor(source: String, id: Long): Long {
-            return memo.getOrPut(Pair(source, id)) {
-                val (destination, mapping) = mappings[source] ?: return id
-                findMappingFor(
+        fun findMinFor(source: String, index: Int, sourceRange: LongRange): Long {
+            val (destination, mapping) = mappings[source] ?: return sourceRange.start
+            val (range, startDestination) = mapping.getOrNull(index) ?: return findMinFor(destination, 0, sourceRange)
+
+            return when {
+                range.contains(sourceRange.start) && range.contains(sourceRange.endInclusive) -> findMinFor(
                     source = destination,
-                    id = mapping
-                        .firstOrNull { (sourceRange) -> sourceRange.contains(id) }
-                        ?.let { (sourceRange, startDestination) -> (id - sourceRange.start) + startDestination }
-                        ?: id
+                    index = 0,
+                    sourceRange = startDestination + sourceRange.start - range.start..(startDestination + sourceRange.start - range.start) + sourceRange.endInclusive - sourceRange.start
+                )
+
+                range.contains(sourceRange.start) && range.contains(sourceRange.endInclusive).not() -> min(
+                    findMinFor(
+                        source = destination,
+                        index = 0,
+                        sourceRange = startDestination + (sourceRange.start - range.start)..
+                                (startDestination + (sourceRange.start - range.start)) + range.endInclusive - sourceRange.start
+                    ),
+                    findMinFor(
+                        source = source,
+                        index = index + 1,
+                        sourceRange = range.endInclusive + 1..sourceRange.endInclusive
+                    )
+                )
+
+                range.contains(sourceRange.start).not() && range.contains(sourceRange.endInclusive) -> min(
+                    findMinFor(
+                        source = source,
+                        index = index + 1,
+                        sourceRange = sourceRange.start..<range.start
+                    ),
+                    findMinFor(
+                        source = destination,
+                        index = 0,
+                        sourceRange = startDestination..startDestination + sourceRange.endInclusive - range.start
+                    ),
+                )
+
+                range.contains(sourceRange.start).not() &&
+                        range.contains(sourceRange.endInclusive).not() &&
+                        (sourceRange.endInclusive < range.start ||
+                                sourceRange.start > range.endInclusive) -> findMinFor(
+                    source = source,
+                    index = index + 1,
+                    sourceRange = sourceRange
+                )
+
+                else -> min(
+                    min(
+                        findMinFor(
+                            source = source,
+                            index = index + 1,
+                            sourceRange = sourceRange.start..<range.start
+                        ),
+                        findMinFor(
+                            source = destination,
+                            index = 0,
+                            sourceRange = startDestination..startDestination + range.endInclusive - range.start
+                        ),
+                    ),
+                    findMinFor(
+                        source = source,
+                        index = index + 1,
+                        sourceRange = range.endInclusive + 1..sourceRange.endInclusive
+                    ),
                 )
             }
         }
 
         return seeds
             .chunked(2)
-            .asSequence()
-            .flatMap { (startSource, length) ->
-                (startSource.toLong()..<startSource.toLong() + length.toLong()).map {
-                    findMappingFor("seed", it)
-                }
+            .minOf { (startSource, length) ->
+                findMinFor(
+                    source = "seed",
+                    index = 0,
+                    sourceRange = startSource.toLong()..<startSource.toLong() + length.toLong(),
+                )
             }
-            .min()
     }
 
     val testInput1 = readFile("Day05_1_test")
@@ -105,5 +160,5 @@ fun main() {
 
     val input = readFile("Day05")
     part1(input).println()
-//    part2(input).println()
+    part2(input).println()
 }
