@@ -1,3 +1,6 @@
+import kotlin.math.sqrt
+import kotlin.system.measureTimeMillis
+
 fun main() {
     fun part1(input: List<String>): Int {
         val times = input[0].substringAfter("Time:").trim().split("""\s+""".toRegex()).map { it.toInt() }
@@ -15,9 +18,10 @@ fun main() {
     fun part2(input: List<String>): Int {
         val time = input[0].substringAfter("Time:").trim().filter { it.isDigit() }.toLong()
         val distance = input[1].substringAfter("Distance:").trim().filter { it.isDigit() }.toLong()
-        return (1..<time)
-            .map { (time - it) * it }
-            .count { it > distance }
+        val q = sqrt(((time * time) - (4 * distance)).toDouble())
+        val maxX = ((time + q) / 2).toInt()
+        val minX = (((time - q) / 2) + 1).toInt()
+        return (maxX - minX) + 1
     }
 
     val testInput1 = readLines("Day06_1_test")
@@ -25,6 +29,6 @@ fun main() {
     check(part2(testInput1) == 71503)
 
     val input = readLines("Day06")
-    part1(input).println()
-    part2(input).println()
+    measureTimeMillis { part1(input).println() }.also { println("time: $it") }
+    measureTimeMillis { part2(input).println() }.also { println("time: $it") }
 }

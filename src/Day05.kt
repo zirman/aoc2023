@@ -169,10 +169,6 @@ suspend fun main() {
     check(part2(testInput1) == 46L)
 
     val input = readFile("Day05")
-    measureTimeMillis {
-        part1(input).println()
-    }.also { println(it) }
-    measureTimeMillis {
-        part2(input).println()
-    }.also { println(it) }
+    measureTimeMillis { part1(input).println() }.also { println("time: $it") }
+    measureTimeMillis { part2(input).println() }.also { println("time: $it") }
 }
