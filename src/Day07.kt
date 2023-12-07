@@ -1,3 +1,5 @@
+import kotlin.system.measureTimeMillis
+
 fun never(): Nothing {
     throw IllegalStateException()
 }
@@ -12,18 +14,14 @@ fun main() {
                 when (counts[0].second) {
                     5 -> 6 // 5 of a kind
                     4 -> 5 // 4 of a kind
-                    3 -> {
-                        when (counts[1].second) {
-                            2 -> 4 // full house
-                            else -> 3 // three of a kind
-                        }
+                    3 -> when (counts[1].second) {
+                        2 -> 4 // full house
+                        else -> 3 // three of a kind
                     }
 
-                    2 -> {
-                        when (counts[1].second) {
-                            2 -> 2 // two pair
-                            else -> 1  // one pair
-                        }
+                    2 -> when (counts[1].second) {
+                        2 -> 2 // two pair
+                        else -> 1  // one pair
                     }
 
                     1 -> 0 // high card
@@ -58,25 +56,22 @@ fun main() {
         val hands = input.map { it.split(' ') }
         hands
             .sortedWith(compareBy<List<String>> { (cards, _) ->
-                var counts =
-                    cards.toList().groupingBy { it }.eachCount().toList().sortedByDescending { (_, count) -> count }
-                val wildcardCount = counts.firstOrNull { (card, _) -> card == 'J' }?.second ?: 0
-                counts = counts.filter { (card, _) -> card != 'J' }.ifEmpty { listOf(Pair('K', 0)) }
-                when (counts[0].second + wildcardCount) {
+                val cardCountsList = cards.toList().groupingBy { it }.eachCount().toList()
+                val (wildcardsList, nonWildcardsList) = cardCountsList.partition { (card, _) -> card == 'J' }
+                val nonWildcardsSortedList = nonWildcardsList.sortedByDescending { (_, count) -> count }
+                val wildcardCount = wildcardsList.sumOf { (_, count) -> count }
+                val mostCommonCardCount = nonWildcardsSortedList.getOrNull(0)?.second ?: 0
+                when (mostCommonCardCount + wildcardCount) {
                     5 -> 6 // 5 of a kind
                     4 -> 5 // 4 of a kind
-                    3 -> {
-                        when (counts[1].second) {
-                            2 -> 4 // full house
-                            else -> 3 // three of a kind
-                        }
+                    3 -> when (nonWildcardsSortedList[1].second) {
+                        2 -> 4 // full house
+                        else -> 3 // three of a kind
                     }
 
-                    2 -> {
-                        when (counts[1].second) {
-                            2 -> 2 // two pair
-                            else -> 1  // one pair
-                        }
+                    2 -> when (nonWildcardsSortedList[1].second) {
+                        2 -> 2 // two pair
+                        else -> 1  // one pair
                     }
 
                     1 -> 0 // high card
@@ -112,6 +107,6 @@ fun main() {
     check(part2(testInput1) == 5905L)
 
     val input = readLines("Day07")
-    part1(input).println()
-    part2(input).println()
+    measureTimeMillis { part1(input).println() }.also { println("time: $it") }
+    measureTimeMillis { part2(input).println() }.also { println("time: $it") }
 }
