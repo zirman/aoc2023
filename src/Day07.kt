@@ -9,17 +9,20 @@ fun main() {
         val hands = input.map { it.split(' ') }
         hands
             .sortedWith(compareBy<List<String>> { (cards, _) ->
-                val counts =
-                    cards.toList().groupingBy { it }.eachCount().toList().sortedByDescending { (_, count) -> count }
-                when (counts[0].second) {
+                val kindCounts = cards
+                    .toList().groupingBy { it }
+                    .eachCount().toList()
+                    .sortedByDescending { (_, count) -> count }
+                    .map { (_, count) -> count }
+                when (kindCounts[0]) {
                     5 -> 6 // 5 of a kind
                     4 -> 5 // 4 of a kind
-                    3 -> when (counts[1].second) {
+                    3 -> when (kindCounts[1]) {
                         2 -> 4 // full house
                         else -> 3 // three of a kind
                     }
 
-                    2 -> when (counts[1].second) {
+                    2 -> when (kindCounts[1]) {
                         2 -> 2 // two pair
                         else -> 1  // one pair
                     }
@@ -28,24 +31,8 @@ fun main() {
                     else -> never()
                 }
             }.thenBy { (cards, _) ->
-                cards.fold(0) { order, card ->
-                    order * 13 + when (card) {
-                        'A' -> 12
-                        'K' -> 11
-                        'Q' -> 10
-                        'J' -> 9
-                        'T' -> 8
-                        '9' -> 7
-                        '8' -> 6
-                        '7' -> 5
-                        '6' -> 4
-                        '5' -> 3
-                        '4' -> 2
-                        '3' -> 1
-                        '2' -> 0
-                        else -> never()
-                    }
-                }
+                val cardMapping = "23456789TJQKA"
+                cards.fold(0) { order, card -> (order * cardMapping.length) + cardMapping.indexOf(card) }
             })
             .mapIndexed { index, (_, bid) -> (index + 1) * bid.toLong() }
             .sum()
@@ -60,16 +47,17 @@ fun main() {
                 val (wildcardsList, nonWildcardsList) = cardCountsList.partition { (card, _) -> card == 'J' }
                 val nonWildcardsSortedList = nonWildcardsList.sortedByDescending { (_, count) -> count }
                 val wildcardCount = wildcardsList.sumOf { (_, count) -> count }
-                val mostCommonCardCount = nonWildcardsSortedList.getOrNull(0)?.second ?: 0
-                when (mostCommonCardCount + wildcardCount) {
+                val kindCounts = nonWildcardsSortedList.map { (_, count) -> count }.ifEmpty { listOf(0) }
+                    .mapIndexed { index, i -> if (index == 0) i + wildcardCount else i }
+                when (kindCounts[0]) {
                     5 -> 6 // 5 of a kind
                     4 -> 5 // 4 of a kind
-                    3 -> when (nonWildcardsSortedList[1].second) {
+                    3 -> when (kindCounts[1]) {
                         2 -> 4 // full house
                         else -> 3 // three of a kind
                     }
 
-                    2 -> when (nonWildcardsSortedList[1].second) {
+                    2 -> when (kindCounts[1]) {
                         2 -> 2 // two pair
                         else -> 1  // one pair
                     }
@@ -78,24 +66,8 @@ fun main() {
                     else -> never()
                 }
             }.thenBy { (cards, _) ->
-                cards.fold(0) { order, card ->
-                    order * 13 + when (card) {
-                        'A' -> 12
-                        'K' -> 11
-                        'Q' -> 10
-                        'T' -> 9
-                        '9' -> 8
-                        '8' -> 7
-                        '7' -> 6
-                        '6' -> 5
-                        '5' -> 4
-                        '4' -> 3
-                        '3' -> 2
-                        '2' -> 1
-                        'J' -> 0
-                        else -> never()
-                    }
-                }
+                val cardMapping = "J23456789TQKA"
+                cards.fold(0) { order, card -> (order * cardMapping.length) + cardMapping.indexOf(card) }
             })
             .mapIndexed { index, (_, bid) -> (index + 1) * bid.toLong() }
             .sum()
