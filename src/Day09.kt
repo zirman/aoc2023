@@ -1,3 +1,5 @@
+import kotlin.system.measureTimeMillis
+
 fun main() {
     fun List<Int>.recur(): List<List<Int>> {
         return if (all { it == 0 }) listOf(this)
@@ -39,6 +41,6 @@ fun main() {
     check(part2(testInput1) == 2)
 
     val input = readLines("Day09")
-    part1(input).println()
-    part2(input).println()
+    measureTimeMillis { part1(input).println() }.also { println("time: $it") }
+    measureTimeMillis { part2(input).println() }.also { println("time: $it") }
 }
