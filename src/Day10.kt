@@ -11,12 +11,14 @@ fun main() {
     fun Char.connectsWest(): Boolean = "-7J".contains(this)
     fun Char.connectsEast(): Boolean = "-LF".contains(this)
 
-    fun parse(input: List<String>): Triple<List<List<Char>>, Int, Int> {
+    fun parse(input: List<String>): Triple<Int, Int, List<List<Char>>> {
         val pipes = input.map { it.toList() }
         val startRowIndex = pipes.indexOfFirst { it.contains('S') }
         val startColumnIndex = pipes[startRowIndex].indexOfFirst { it == 'S' }
 
         return Triple(
+            startRowIndex,
+            startColumnIndex,
             pipes.map { row ->
                 row.map {
                     if (it == 'S') {
@@ -46,8 +48,6 @@ fun main() {
                     }
                 }
             },
-            startRowIndex,
-            startColumnIndex,
         )
     }
 
@@ -75,7 +75,7 @@ fun main() {
     }
 
     fun part1(input: List<String>): Int {
-        val (pipes, startRowIndex, startColumnIndex) = parse(input)
+        val (startRowIndex, startColumnIndex, pipes) = parse(input)
 
         tailrec fun List<Pair<Int, Int>>.breathFirstSearch(
             depth: Int,
@@ -92,7 +92,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val (pipes, startRowIndex, startColumnIndex) = parse(input)
+        val (startRowIndex, startColumnIndex, pipes) = parse(input)
 
         tailrec fun List<Pair<Int, Int>>.breathFirstSearch(
             depth: Int,
@@ -159,7 +159,6 @@ fun main() {
             .run { return this }
     }
 
-    // test if implementation meets criteria from the description, like:
     val testInput1 = readLines("Day10_1_test")
     check(part1(testInput1) == 8)
 
