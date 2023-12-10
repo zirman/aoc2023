@@ -47,29 +47,28 @@ fun main() {
                 }
             },
             startRowIndex,
-            startColumnIndex
+            startColumnIndex,
         )
     }
 
     fun List<List<Char>>.connectedPipes(rowIndex: Int, columnIndex: Int): List<Pair<Int, Int>> = buildList {
-        val pipes = this@connectedPipes
-        if (pipes[rowIndex][columnIndex].connectsNorth() &&
-            pipes[rowIndex - 1, columnIndex]?.connectsSouth() == true
+        if (this@connectedPipes[rowIndex][columnIndex].connectsNorth() &&
+            this@connectedPipes[rowIndex - 1, columnIndex]?.connectsSouth() == true
         ) {
             add(Pair(rowIndex - 1, columnIndex))
         }
-        if (pipes[rowIndex][columnIndex].connectsSouth() &&
-            pipes[rowIndex + 1, columnIndex]?.connectsNorth() == true
+        if (this@connectedPipes[rowIndex][columnIndex].connectsSouth() &&
+            this@connectedPipes[rowIndex + 1, columnIndex]?.connectsNorth() == true
         ) {
             add(Pair(rowIndex + 1, columnIndex))
         }
-        if (pipes[rowIndex][columnIndex].connectsWest() &&
-            pipes[rowIndex, columnIndex - 1]?.connectsEast() == true
+        if (this@connectedPipes[rowIndex][columnIndex].connectsWest() &&
+            this@connectedPipes[rowIndex, columnIndex - 1]?.connectsEast() == true
         ) {
             add(Pair(rowIndex, columnIndex - 1))
         }
-        if (pipes[rowIndex][columnIndex].connectsEast() &&
-            pipes[rowIndex, columnIndex + 1]?.connectsWest() == true
+        if (this@connectedPipes[rowIndex][columnIndex].connectsEast() &&
+            this@connectedPipes[rowIndex, columnIndex + 1]?.connectsWest() == true
         ) {
             add(Pair(rowIndex, columnIndex + 1))
         }
@@ -78,21 +77,16 @@ fun main() {
     fun part1(input: List<String>): Int {
         val (pipes, startRowIndex, startColumnIndex) = parse(input)
 
-        tailrec fun breathFirstSearch(
+        tailrec fun List<Pair<Int, Int>>.breathFirstSearch(
             depth: Int,
-            current: List<Pair<Int, Int>>,
             visited: PersistentSet<Pair<Int, Int>>,
-        ): Int {
-            val next = current
-                .flatMap { (rowIndex, columnIndex) -> pipes.connectedPipes(rowIndex, columnIndex) }
-                .filter { visited.contains(it).not() }
+        ): Int = flatMap { (rowIndex, columnIndex) -> pipes.connectedPipes(rowIndex, columnIndex) }
+            .filter { visited.contains(it).not() }
+            .ifEmpty { return depth }
+            .breathFirstSearch(depth + 1, visited = visited.addAll(this))
 
-            return if (next.isEmpty()) depth else breathFirstSearch(depth + 1, next, visited.addAll(current))
-        }
-
-        return breathFirstSearch(
+        return listOf(Pair(startRowIndex, startColumnIndex)).breathFirstSearch(
             depth = 0,
-            current = listOf(Pair(startRowIndex, startColumnIndex)),
             visited = persistentSetOf(),
         )
     }
@@ -100,25 +94,17 @@ fun main() {
     fun part2(input: List<String>): Int {
         val (pipes, startRowIndex, startColumnIndex) = parse(input)
 
-        tailrec fun breathFirstSearch(
+        tailrec fun List<Pair<Int, Int>>.breathFirstSearch(
             depth: Int,
-            current: List<Pair<Int, Int>>,
             visited: PersistentSet<Pair<Int, Int>>,
-        ): PersistentSet<Pair<Int, Int>> {
-            val next = current
-                .flatMap { (rowIndex, columnIndex) -> pipes.connectedPipes(rowIndex, columnIndex) }
+        ): PersistentSet<Pair<Int, Int>> =
+            flatMap { (rowIndex, columnIndex) -> pipes.connectedPipes(rowIndex, columnIndex) }
                 .filter { visited.contains(it).not() }
+                .ifEmpty { return visited.addAll(this) }
+                .breathFirstSearch(depth = depth + 1, visited = visited.addAll(this))
 
-            return if (next.isEmpty()) {
-                visited.addAll(current)
-            } else {
-                breathFirstSearch(depth = depth + 1, current = next, visited = visited.addAll(current))
-            }
-        }
-
-        val visitedPipes = breathFirstSearch(
+        val visitedPipes = listOf(Pair(startRowIndex, startColumnIndex)).breathFirstSearch(
             depth = 0,
-            current = listOf(Pair(startRowIndex, startColumnIndex)),
             visited = persistentSetOf(),
         )
 
@@ -168,6 +154,7 @@ fun main() {
                     }
                 }
             }
+//            .also { println(it.joinToString("\n") { row -> row.joinToString("") }) }
             .sumOf { row -> row.count { it == 'I' } }
             .run { return this }
     }
