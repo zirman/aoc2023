@@ -1,18 +1,15 @@
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlin.system.measureTimeMillis
 
 fun main() {
     fun String.parse(): List<Int> = split(' ').map { it.toInt() }
 
-    fun recur(nums: List<Int>): List<List<Int>> = buildList {
-        if (nums.any { it != 0 }) addAll(recur(nums.windowed(2, 1).map { (p, n) -> n - p }))
-        add(nums)
-    }
+    fun recur(nums: List<Int>): PersistentList<List<Int>> =
+        if (nums.any { it != 0 }) recur(nums.windowed(2).map { (p, n) -> n - p }).add(nums) else persistentListOf(nums)
 
-    fun part1(input: List<String>): Int =
-        input.sumOf { line -> recur(line.parse()).sumOf { numbers -> numbers.last() } }
-
-    fun part2(input: List<String>): Int =
-        input.sumOf { line -> recur(line.parse()).map { it.first() }.reduce { acc, n -> n - acc } }
+    fun part1(input: List<String>): Int = input.sumOf { line -> recur(line.parse()).sumOf { it.last() } }
+    fun part2(input: List<String>): Int = input.sumOf { line -> recur(line.parse().reversed()).sumOf { it.last() } }
 
     val testInput1 = readLines("Day09_1_test")
     check(part1(testInput1) == 114)
