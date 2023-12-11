@@ -78,9 +78,10 @@ fun main() {
 
     val testInput1 = readLines("Day11_1_test")
     check(part1(testInput1) == 374)
-    check(part2(testInput1, 2) == 374L)
+    check(part2(testInput1, 10) == 1030L)
+    check(part2(testInput1, 100) == 8410L)
 
     val input = readLines("Day11")
-    measureTimeMillis { part1(input).println() }.also { println("time: $it") }
-    measureTimeMillis { part2(input, 1000000).println() }.also { println("time: $it") }
+    measureTimeMillis { part1(input).println() }.also { println("time: ${it}ms") }
+    measureTimeMillis { part2(input, 1000000).println() }.also { println("time: ${it}ms") }
 }
