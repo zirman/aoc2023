@@ -1,18 +1,34 @@
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlin.system.measureTimeMillis
 
-fun main() {
-    fun part1(input: List<String>): Int {
-        fun transpose(xs: List<List<Char>>): List<List<Char>> {
-            return xs[0].indices.map { columnIndex ->
-                xs.indices.map { rowIndex ->
-                    xs[rowIndex][columnIndex]
-                }
-            }
+fun <T> cycleSkipper(initialState: T, n: Long, iterate: T.() -> T): T {
+    tailrec fun recur(lookupTable: PersistentList<T>, state: T): T {
+        val lastSeenIndex = lookupTable.lastIndexOf(state)
+
+        if (lastSeenIndex != -1) {
+            val cycle = lookupTable.size - lastSeenIndex
+            val offset = lookupTable.lastIndexOf(state)
+            return lookupTable[(n - offset).mod(cycle) + offset]
         }
 
-        val rocks = input.map { line ->
-            line.toList()
+        return recur(lookupTable = lookupTable.add(state), state = state.iterate())
+    }
+
+    return recur(persistentListOf(), initialState)
+}
+
+fun main() {
+    fun List<List<Char>>.transpose(): List<List<Char>> {
+        return this[0].indices.map { columnIndex ->
+            indices.map { rowIndex ->
+                this[rowIndex][columnIndex]
+            }
         }
+    }
+
+    fun part1(input: List<String>): Int {
+        val rocks = input.map { line -> line.toList() }
 
         rocks[0].indices
             .map { columnIndex ->
@@ -36,7 +52,7 @@ fun main() {
                 }
                 column.toList()
             }
-            .let { transpose(it) }
+            .transpose()
             .reversed()
             .mapIndexed { rowIndex, row -> (row.count { it == 'O' } * (rowIndex + 1)) }
             .sum()
@@ -44,14 +60,6 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        fun List<List<Char>>.transpose(): List<List<Char>> {
-            return this[0].indices.map { columnIndex ->
-                indices.map { rowIndex ->
-                    this[rowIndex][columnIndex]
-                }
-            }
-        }
-
         fun List<List<Char>>.rotate(): List<List<Char>> {
             return this[0].indices.map { columnIndex ->
                 indices.reversed().map { rowIndex ->
@@ -97,24 +105,11 @@ fun main() {
                 .sum()
         }
 
-        var rocks = input.map { line ->
+        val rocks = input.map { line ->
             line.toList()
         }
 
-        val table = mutableListOf<List<List<Char>>>()
-
-        for (i in 0..1_000_000_000) {
-            if (table.contains(rocks)) {
-                val cycle = table.size - table.indexOf(rocks)
-                val offset = table.lastIndexOf(rocks)
-                return table[(1_000_000_000 - offset).mod(cycle) + offset].load()
-            }
-
-            table.add(rocks)
-            rocks = rocks.cycle()
-        }
-
-        never()
+        return cycleSkipper(rocks, 1_000_000_000) { cycle() }.load()
     }
 
     val testInput1 = readLines("Day14_1_test")
