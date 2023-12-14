@@ -2,20 +2,20 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.system.measureTimeMillis
 
-fun <T> cycleSkipper(initialState: T, n: Long, iterate: T.() -> T): T {
-    tailrec fun recur(lookupTable: PersistentList<T>, state: T): T {
-        val lastSeenIndex = lookupTable.lastIndexOf(state)
+fun <T> T.iterateSkippingCycles(n: Long, iterate: T.() -> T): T {
+    tailrec fun T.recur(lookupTable: PersistentList<T>): T {
+        val lastSeenIndex = lookupTable.lastIndexOf(this)
 
         if (lastSeenIndex != -1) {
             val cycle = lookupTable.size - lastSeenIndex
-            val offset = lookupTable.lastIndexOf(state)
+            val offset = lookupTable.lastIndexOf(this)
             return lookupTable[(n - offset).mod(cycle) + offset]
         }
 
-        return recur(lookupTable = lookupTable.add(state), state = state.iterate())
+        return iterate().recur(lookupTable = lookupTable.add(this))
     }
 
-    return recur(persistentListOf(), initialState)
+    return recur(persistentListOf())
 }
 
 fun main() {
@@ -109,7 +109,7 @@ fun main() {
             line.toList()
         }
 
-        return cycleSkipper(rocks, 1_000_000_000) { cycle() }.load()
+        return rocks.iterateSkippingCycles(1_000_000_000) { cycle() }.load()
     }
 
     val testInput1 = readLines("Day14_1_test")
