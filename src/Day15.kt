@@ -1,20 +1,60 @@
+import kotlin.system.measureTimeMillis
+
 fun main() {
-    fun part1(input: List<String>): Int {
-        TODO()
+    fun part1(input: List<String>): Long {
+        fun String.hash(): Long {
+            return fold(0L) { acc, c -> ((acc + c.code) * 17).mod(256L) }
+        }
+
+        input
+            .flatMap { line -> line.split(",") }
+            .sumOf { it.hash() }
+            .run { return this }
     }
 
-    fun part2(input: List<String>): Int {
-        TODO()
+    fun part2(input: List<String>): Long {
+        fun String.hash(): Int {
+            return fold(0) { acc, c -> ((acc + c.code) * 17).mod(256) }
+        }
+
+        val boxes = (1..256).map { mutableMapOf<String, String>() }
+
+        input
+            .flatMap { line -> line.split(",") }
+            .forEach { inst ->
+                val (hashCode, op) = inst.partition { it.isLetter() }
+
+                when (op[0]) {
+                    '-' -> {
+                        boxes[hashCode.hash()].remove(hashCode)
+                    }
+
+                    '=' -> {
+                        if (boxes[hashCode.hash()].replace(hashCode, op.substringAfter("=")) == null) {
+                            boxes[hashCode.hash()][hashCode] = op.substringAfter("=")
+                        }
+                    }
+                }
+            }
+
+        boxes
+            .mapIndexed { boxIndex, mutableMap ->
+                mutableMap
+                    .toList()
+                    .mapIndexed { slotIndex, (_, focalLength) ->
+                        (boxIndex + 1) * (slotIndex + 1) * focalLength.toLong()
+                    }
+                    .sum()
+            }
+            .sum()
+            .run { return this }
     }
 
-    // test if implementation meets criteria from the description, like:
     val testInput1 = readLines("Day15_1_test")
-    check(part1(testInput1) == TODO())
-
-//    val testInput2 = readInput("Day15_2_test")
-//    check(part2(testInput2) == 1)
+    check(part1(testInput1) == 1320L)
+    check(part2(testInput1) == 145L)
 
     val input = readLines("Day15")
-    part1(input).println()
-//    part2(input).println()
+    measureTimeMillis { part1(input).println() }.also { println("time: $it") }
+    measureTimeMillis { part2(input).println() }.also { println("time: $it") }
 }
