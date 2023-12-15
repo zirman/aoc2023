@@ -2,17 +2,17 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.system.measureTimeMillis
 
-fun <T> T.iterateSkippingCycles(n: Long, iterate: T.() -> T): T {
+fun <T> T.iterateSkippingCycles(times: Long, iterate: T.() -> T): T {
     tailrec fun T.recur(lookupTable: PersistentList<T>): T {
         val lastSeenIndex = lookupTable.lastIndexOf(this)
 
-        if (lastSeenIndex != -1) {
+        return if (lastSeenIndex != -1) {
             val cycle = lookupTable.size - lastSeenIndex
             val offset = lookupTable.lastIndexOf(this)
-            return lookupTable[(n - offset).mod(cycle) + offset]
+            lookupTable[(times - offset).mod(cycle) + offset]
+        } else {
+            iterate().recur(lookupTable = lookupTable.add(this))
         }
-
-        return iterate().recur(lookupTable = lookupTable.add(this))
     }
 
     return recur(persistentListOf())

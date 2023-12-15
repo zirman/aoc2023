@@ -30,8 +30,9 @@ fun main() {
                     }
 
                     '=' -> {
-                        if (boxes[hashCode.hash()].replace(hashCode, op.substringAfter("=")) == null) {
-                            boxes[hashCode.hash()][hashCode] = op.substringAfter("=")
+                        val focalLengthStr = op.substringAfter("=")
+                        if (boxes[hashCode.hash()].replace(hashCode, focalLengthStr) == null) {
+                            boxes[hashCode.hash()][hashCode] = focalLengthStr
                         }
                     }
                 }
