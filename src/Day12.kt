@@ -1,4 +1,5 @@
 import kotlinx.coroutines.coroutineScope
+import kotlin.math.sign
 
 suspend fun main() {
     fun part1(input: List<String>): Long {
@@ -35,6 +36,27 @@ suspend fun main() {
             .run { return this }
     }
 
+    // calculates how many ways to add up n numbers to equal a total
+
+
+    fun sumPermutations(total: Int, n: Int): Long {
+//        println("total $total, n: $n")
+        val memo = mutableMapOf<Int, Long>()
+
+        fun recur(n: Int): Long {
+            return when (n) {
+                1 -> 1L
+                2 -> total.toLong() + 1
+                else -> memo.getOrPut(n) {
+                    (0..total).sumOf { sumPermutations(it, n - 1) }
+                }
+            }
+        }
+
+        return recur(n)
+    }
+
+    //    val memo = mutableMapOf<Pair<Int, Int>, Long>()
     suspend fun part2(input: List<String>): Long = coroutineScope {
         input
             .map { line ->
@@ -51,6 +73,7 @@ suspend fun main() {
                 )
             }
             .sumOf { (springs, brokenLengths) ->
+                println("springs $springs brokenLengths: $brokenLengths")
                 fun matchGroup(
                     springs: List<Char>,
                     brokenLengths: List<Int>
@@ -66,6 +89,7 @@ suspend fun main() {
                             listOf()
                         }
                     }
+
 //                    println("wat $brokenLengths")
                     (0..brokenLengths.size)
                         .map {
@@ -75,20 +99,27 @@ suspend fun main() {
                             )
                         }
                         .mapNotNull { (brokenLengths, remainingBrokenLengths) ->
-//                            println("wat $brokenLengths $remainingBrokenLengths")
+                            //                            println("wat $brokenLengths $remainingBrokenLengths")
 //
                             fun List<Char>.match(brokenLengths: List<Int>): Long {
 //                                println("match $this $brokenLengths")
                                 return if (brokenLengths.isEmpty()) {
                                     if (all { it == '?' }) 1 else 0
+                                } else if (remainingBrokenLengths.isEmpty() && all { it == '?' }) {
+//                                    println("size $size ${brokenLengths.sumOf { it }} ${brokenLengths.size - 1}")
+                                    sumPermutations((size - (brokenLengths.sumOf { it } + (brokenLengths.size - 1))),
+                                        brokenLengths.size + 1)
                                 } else {
-                                    var x = indexOfFirst { it == '#' }
-                                    if (x != -1) {
-                                        x = kotlin.math.min(x, size - (brokenLengths[0] + brokenLengths.drop(1).sumOf { it + 1 }))
+                                    var maxStartIndex = indexOfFirst { it == '#' }
+                                    maxStartIndex = if (maxStartIndex != -1) {
+                                        kotlin.math.min(
+                                            maxStartIndex,
+                                            size - (brokenLengths[0] + brokenLengths.drop(1).sumOf { it + 1 })
+                                        )
                                     } else {
-                                        x = size - (brokenLengths[0] + brokenLengths.drop(1).sumOf { it + 1 })
+                                        size - (brokenLengths[0] + brokenLengths.drop(1).sumOf { it + 1 })
                                     }
-                                    (0..x)
+                                    (0..maxStartIndex)
                                         .filter {
 //                                            println("lala ${it} ${brokenLengths[0]} ${it + brokenLengths[0] == size} ${this[it + brokenLengths[0]] == '?'}")
                                             it + brokenLengths[0] == size || this[it + brokenLengths[0]] == '?'
@@ -142,11 +173,12 @@ suspend fun main() {
 //    check(part2(listOf("???.### 1,1,3")) == 1L)
 //    check(part2(listOf(".??..??...?##. 1,1,3")) == 16384L)
 //    check(part2(listOf("#?##?# 1,2,1")) == 1L)
-    check(part2(listOf("????.#...#... 4,1,1")) == 16L)
-    check(part2(listOf("????.######..#####. 1,6,5")) == 2500L)
+//    check(part2(listOf("????.#...#... 4,1,1")) == 16L)
+//    check(part2(listOf("????.######..#####. 1,6,5")) == 2500L)
+    println(sumPermutations(3, 3))
     check(part2(listOf("?###???????? 3,2,1")) == 506250L)
+//    part2(listOf("??##???????????#? 5,2,1,2"))
 //    check(part2(testInput1) == 525152L)
-    println("wat")
 
     val input = readLines("Day12")
 //    part1(input).println()
