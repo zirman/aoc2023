@@ -31,92 +31,69 @@ fun <T> aStar(
 fun main() {
     fun part1(input: List<String>): Long {
         val map = input.map { line -> line.map { it.code - '0'.code } }
-        val visitedNorth = mutableMapOf<Triple<Int, Int, Int>, Long>()
-        val visitedSouth = mutableMapOf<Triple<Int, Int, Int>, Long>()
-        val visitedEast = mutableMapOf<Triple<Int, Int, Int>, Long>()
-        val visitedWest = mutableMapOf<Triple<Int, Int, Int>, Long>()
+        val visited = mutableMapOf<Crucible, Long>()
 
         fun Crucible.nextStart(cooled: Long): Set<Pair<Crucible, Long>> = buildSet {
             fun goNorth(stepsTaken: Int) {
                 if (rowIndex > 0) {
-                    val k = Triple(rowIndex - 1, columnIndex, stepsTaken)
-                    val c = cooled + map[rowIndex - 1][columnIndex]
-                    val q = visitedNorth[k]
-                    if (q == null || q > c) {
-                        visitedNorth[k] = c
-                        add(
-                            Pair(
-                                copy(
-                                    rowIndex = rowIndex - 1,
-                                    direction = North,
-                                    stepsTaken = stepsTaken,
-                                ),
-                                c,
-                            )
-                        )
+                    val k = copy(
+                        rowIndex = rowIndex - 1,
+                        direction = North,
+                        stepsTaken = stepsTaken,
+                    )
+                    val v = cooled + map[rowIndex - 1][columnIndex]
+                    val q = visited[k]
+                    if (q == null || q > v) {
+                        visited[k] = v
+                        add(Pair(k, v))
                     }
                 }
             }
 
             fun goSouth(stepsTaken: Int) {
                 if (rowIndex < map.size - 1) {
-                    val k = Triple(rowIndex + 1, columnIndex, stepsTaken)
                     val c = cooled + map[rowIndex + 1][columnIndex]
-                    val q = visitedSouth[k]
+                    val k = copy(
+                        rowIndex = rowIndex + 1,
+                        direction = South,
+                        stepsTaken = stepsTaken,
+                    )
+                    val q = visited[k]
                     if (q == null || q > c) {
-                        visitedSouth[k] = c
-                        add(
-                            Pair(
-                                copy(
-                                    rowIndex = rowIndex + 1,
-                                    direction = South,
-                                    stepsTaken = stepsTaken,
-                                ),
-                                c,
-                            )
-                        )
+                        visited[k] = c
+                        add(Pair(k, c))
                     }
                 }
             }
 
             fun goEast(stepsTaken: Int) {
                 if (columnIndex < map[0].size - 1) {
-                    val k = Triple(rowIndex, columnIndex + 1, stepsTaken)
                     val c = cooled + map[rowIndex][columnIndex + 1]
-                    val q = visitedEast[k]
+                    val k = copy(
+                        columnIndex = columnIndex + 1,
+                        direction = East,
+                        stepsTaken = stepsTaken,
+                    )
+                    val q = visited[k]
                     if (q == null || q > c) {
-                        visitedEast[k] = c
-                        add(
-                            Pair(
-                                copy(
-                                    columnIndex = columnIndex + 1,
-                                    direction = East,
-                                    stepsTaken = stepsTaken,
-                                ),
-                                c,
-                            )
-                        )
+                        visited[k] = c
+                        add(Pair(k, c))
                     }
                 }
             }
 
             fun goWest(stepsTaken: Int) {
                 if (columnIndex > 0) {
-                    val k = Triple(rowIndex, columnIndex - 1, stepsTaken)
+                    val k = copy(
+                        columnIndex = columnIndex - 1,
+                        direction = West,
+                        stepsTaken = stepsTaken,
+                    )
                     val c = cooled + map[rowIndex][columnIndex - 1]
-                    val q = visitedWest[k]
+                    val q = visited[k]
                     if (q == null || q > c) {
-                        visitedWest[k] = c
-                        add(
-                            Pair(
-                                copy(
-                                    columnIndex = columnIndex - 1,
-                                    direction = West,
-                                    stepsTaken = stepsTaken,
-                                ),
-                                c,
-                            )
-                        )
+                        visited[k] = c
+                        add(Pair(k, c))
                     }
                 }
             }
@@ -163,92 +140,69 @@ fun main() {
 
     fun part2(input: List<String>): Long {
         val map = input.map { line -> line.map { it.code - '0'.code } }
-        val visitedNorth = mutableMapOf<Triple<Int, Int, Int>, Long>()
-        val visitedSouth = mutableMapOf<Triple<Int, Int, Int>, Long>()
-        val visitedEast = mutableMapOf<Triple<Int, Int, Int>, Long>()
-        val visitedWest = mutableMapOf<Triple<Int, Int, Int>, Long>()
+        val visited = mutableMapOf<Crucible, Long>()
 
         fun Crucible.nextStart(cooled: Long): Set<Pair<Crucible, Long>> = buildSet {
             fun goNorth(stepsTaken: Int) {
                 if (rowIndex > 0) {
-                    val k = Triple(rowIndex - 1, columnIndex, stepsTaken)
+                    val k = copy(
+                        rowIndex = rowIndex - 1,
+                        direction = North,
+                        stepsTaken = stepsTaken,
+                    )
                     val c = cooled + map[rowIndex - 1][columnIndex]
-                    val q = visitedNorth[k]
+                    val q = visited[k]
                     if (q == null || q > c) {
-                        visitedNorth[k] = c
-                        add(
-                            Pair(
-                                copy(
-                                    rowIndex = rowIndex - 1,
-                                    direction = North,
-                                    stepsTaken = stepsTaken,
-                                ),
-                                c,
-                            )
-                        )
+                        visited[k] = c
+                        add(Pair(k, c))
                     }
                 }
             }
 
             fun goSouth(stepsTaken: Int) {
                 if (rowIndex < map.size - 1) {
-                    val k = Triple(rowIndex + 1, columnIndex, stepsTaken)
+                    val k = copy(
+                        rowIndex = rowIndex + 1,
+                        direction = South,
+                        stepsTaken = stepsTaken,
+                    )
                     val c = cooled + map[rowIndex + 1][columnIndex]
-                    val q = visitedSouth[k]
+                    val q = visited[k]
                     if (q == null || q > c) {
-                        visitedSouth[k] = c
-                        add(
-                            Pair(
-                                copy(
-                                    rowIndex = rowIndex + 1,
-                                    direction = South,
-                                    stepsTaken = stepsTaken,
-                                ),
-                                c,
-                            )
-                        )
+                        visited[k] = c
+                        add(Pair(k, c))
                     }
                 }
             }
 
             fun goEast(stepsTaken: Int) {
                 if (columnIndex < map[0].size - 1) {
-                    val k = Triple(rowIndex, columnIndex + 1, stepsTaken)
+                    val k = copy(
+                        columnIndex = columnIndex + 1,
+                        direction = East,
+                        stepsTaken = stepsTaken,
+                    )
                     val c = cooled + map[rowIndex][columnIndex + 1]
-                    val q = visitedEast[k]
+                    val q = visited[k]
                     if (q == null || q > c) {
-                        visitedEast[k] = c
-                        add(
-                            Pair(
-                                copy(
-                                    columnIndex = columnIndex + 1,
-                                    direction = East,
-                                    stepsTaken = stepsTaken,
-                                ),
-                                c,
-                            )
-                        )
+                        visited[k] = c
+                        add(Pair(k, c))
                     }
                 }
             }
 
             fun goWest(stepsTaken: Int) {
                 if (columnIndex > 0) {
-                    val k = Triple(rowIndex, columnIndex - 1, stepsTaken)
+                    val k = copy(
+                        columnIndex = columnIndex - 1,
+                        direction = West,
+                        stepsTaken = stepsTaken,
+                    )
                     val c = cooled + map[rowIndex][columnIndex - 1]
-                    val q = visitedWest[k]
+                    val q = visited[k]
                     if (q == null || q > c) {
-                        visitedWest[k] = c
-                        add(
-                            Pair(
-                                copy(
-                                    columnIndex = columnIndex - 1,
-                                    direction = West,
-                                    stepsTaken = stepsTaken,
-                                ),
-                                c,
-                            )
-                        )
+                        visited[k] = c
+                        add(Pair(k, c))
                     }
                 }
             }
