@@ -8,7 +8,7 @@ fun main() {
         var p = Position(0, 0)
         dug.add(p)
         input.forEach { line ->
-            val (direction, length, color) = line.split(' ')
+            val (direction, length, _) = line.split(' ')
             when (direction) {
                 "R" -> {
                     (p.columnIndex + 1..p.columnIndex + length.toInt()).forEach {
@@ -46,20 +46,6 @@ fun main() {
         val rowRange = dug.minOf { (a, _) -> a }..dug.maxOf { (a, _) -> a }
         val columnRange = dug.minOf { (_, b) -> b }..dug.maxOf { (_, b) -> b }
 
-//        println(minRow)
-//        println(maxRow)
-//        println(minColumn)
-//        println(maxColumn)
-//        val foo = (minRow..maxRow).map { rowIndex ->
-//            (minColumn..maxColumn).map { columnIndex ->
-//                if (dug.contains(Position(rowIndex, columnIndex))) {
-//                    '#'
-//                } else {
-//                    '.'
-//                }
-//            }
-//        }
-
         fun floodFillEdge(): Int {
             val visited = mutableSetOf<Position>()
 
@@ -90,6 +76,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
+        var perimeter = 0L
         val points = buildList {
             var x = 0L
             var y = 0L
@@ -115,27 +102,29 @@ fun main() {
                     East -> {
                         x += length
                         add(Pair(x, y))
+                        perimeter += length
                     }
 
                     South -> {
                         y -= length
                         add(Pair(x, y))
+                        perimeter += length
                     }
 
                     West -> {
                         x -= length
                         add(Pair(x, y))
+                        perimeter += length
                     }
 
                     North -> {
                         y += length
                         add(Pair(x, y))
+                        perimeter += length
                     }
                 }
             }
         }
-
-        println("b")
 
         // shoelace formula to get area from points in center of squares
         val a = sequence { while (true) yieldAll(points) }
@@ -148,15 +137,16 @@ fun main() {
             .take(points.size)
             .sum()
 
-        return abs(a - b) / 2
+        // pick's theorem to add outer edge
+        return ((abs(a - b) + perimeter) / 2) + 1
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput1 = readLines("Day18_1_test")
-//    check(part1(testInput1).also { println(it) } == 62)
-    check(part2(testInput1).also { println(it) } == 952_408_144_115L)
+    check(part1(testInput1) == 62)
+    check(part2(testInput1) == 952_408_144_115L)
 
     val input = readLines("Day18")
-//    part1(input).println()
-    measureTimeMillis { part2(input).println() }.also { println(it) }
+    measureTimeMillis { part1(input).println() }.also { println("time: $it") }
+    measureTimeMillis { part2(input).println() }.also { println("time: $it") }
 }
