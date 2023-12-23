@@ -120,8 +120,6 @@ fun main() {
             buildPaths(Day23Arguments(startPosition, startPosition, Position(1, 1), 1))
         }
 
-        fastMap.forEach { println(it) }
-
         fun depthFirstSearch(visited: PersistentSet<Position>, currentPath: Pair<Position, Int>, length: Int): Int {
             val (pathStart, pathLength) = currentPath
             if (pathStart == endPosition) return length + pathLength
