@@ -7,7 +7,7 @@ fun Position.goDown(): Position = copy(rowIndex = rowIndex + 1)
 fun Position.goLeft(): Position = copy(columnIndex = columnIndex - 1)
 fun Position.goRight(): Position = copy(columnIndex = columnIndex + 1)
 
-data class Foo(val start: Position, val previous: Position, val current: Position, val length: Int)
+data class Day23Arguments(val start: Position, val previous: Position, val current: Position, val length: Int)
 
 fun main() {
     fun part1(input: List<String>): Int {
@@ -80,66 +80,51 @@ fun main() {
         val fastMap = buildMap<Position, List<Pair<Position, Int>>> {
             val visited = mutableSetOf(startPosition)
 
-            val buildPaths = DeepRecursiveFunction { arguments: Foo ->
+            val buildPaths = DeepRecursiveFunction { arguments: Day23Arguments ->
                 val (start: Position, previous: Position, current: Position, length: Int) = arguments
-                if (visited.contains(current) || current == endPosition) {// |
+                val endPath = map[current] != '2'
+
+                if (endPath) {
                     compute(start) { _, paths -> paths.orEmpty() + Pair(current, length) }
                     compute(current) { _, paths -> paths.orEmpty() + Pair(start, length) }
-                } else {
+                }
+
+                if (visited.contains(current).not()) {
                     visited.add(current)
-                    when (map[current]) {
-                        '1', '2' -> {
-                            listOf(
-                                current.goUp(),
-                                current.goDown(),
-                                current.goLeft(),
-                                current.goRight(),
-                            )
-                                .filter { nextPosition ->
-                                    nextPosition != previous &&
-                                            nextPosition.rowIndex in map.indices &&
-                                            nextPosition.columnIndex in map[0].indices &&
-                                            map[nextPosition] != '#'
-                                }
-                                .forEach {
-                                    callRecursive(Foo(start, current, it, length + 1))
-                                }
+
+                    listOf(
+                        current.goUp(),
+                        current.goDown(),
+                        current.goLeft(),
+                        current.goRight(),
+                    )
+                        .filter { nextPosition ->
+                            nextPosition != previous &&
+                                    nextPosition.rowIndex in map.indices &&
+                                    nextPosition.columnIndex in map[0].indices &&
+                                    map[nextPosition] != '#'
                         }
-
-                        '3', '4' -> {
-                            compute(start) { _, paths -> paths.orEmpty() + Pair(current, length) }
-                            compute(current) { _, paths -> paths.orEmpty() + Pair(start, length) }
-
-                            listOf(
-                                current.goUp(),
-                                current.goDown(),
-                                current.goLeft(),
-                                current.goRight(),
+                        .forEach { next ->
+                            callRecursive(
+                                Day23Arguments(
+                                    start = if (endPath) current else start,
+                                    previous = current,
+                                    current = next,
+                                    length = if (endPath) 1 else length + 1,
+                                )
                             )
-                                .filter { nextPosition ->
-                                    nextPosition != previous &&
-                                            nextPosition.rowIndex in map.indices &&
-                                            nextPosition.columnIndex in map[0].indices &&
-                                            map[nextPosition] != '#'
-                                }
-                                .forEach {
-                                    callRecursive(Foo(current, current, it, 1))
-                                }
                         }
-
-                        else -> never()
-                    }
                 }
             }
 
-            buildPaths(Foo(startPosition, startPosition, Position(1, 1), 1))
+            buildPaths(Day23Arguments(startPosition, startPosition, Position(1, 1), 1))
         }
+
+        fastMap.forEach { println(it) }
 
         fun depthFirstSearch(visited: PersistentSet<Position>, currentPath: Pair<Position, Int>, length: Int): Int {
             val (pathStart, pathLength) = currentPath
-            if (pathStart == endPosition) {
-                return length + pathLength
-            }
+            if (pathStart == endPosition) return length + pathLength
             if (visited.contains(pathStart)) return 0
             val nextVisited = visited.add(pathStart)
             return fastMap[pathStart]!!.maxOf { nextFoo -> depthFirstSearch(nextVisited, nextFoo, length + pathLength) }
